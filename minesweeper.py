@@ -1,5 +1,6 @@
 import itertools
 import random
+from tabnanny import check
 from unittest.mock import sentinel
 
 
@@ -192,15 +193,26 @@ class MinesweeperAI():
             5) add any new sentences to the AI's knowledge base
                if they can be inferred from existing knowledge
         """
+        def check_knowledge():
+            for sentence in self.knowledge:
+                for mine in sentence.known_mines():
+                    self.mark_mine(mine)
+                for safe in sentence.known_safes():
+                    self.mark_safe(safe)
+        
         self.moves_made.add(cell)
         self.mark_safe(cell)
         self.knowledge.append(Sentence(cell, count))
-        for sentence in self.knowledge:
-            for mine in sentence.known_mines():
-                self.mark_mine(mine)
-            for safe in sentence.known_safes():
-                self.mark_safe(safe)
-        # Must make a sentence based on the neighboring cells and their count, not the current cell
+        check_knowledge()
+        
+        for sentence_1 in self.knowledge:
+            for sentence_2 in self.knowledge:
+                if sentence_2.cells.issubset(sentence_1.cells):
+                    combined_set = set()
+                    combined_set = sentence_2.cells.difference(sentence_1.cells)
+                    self.knowledge.append(Sentence(combined_set, sentence_1.count-sentence_2.count))
+        check_knowledge()
+        # Must make a sentence based on the neighboring cells and their count, not the current cell???
 
     def make_safe_move(self):
         """
@@ -211,7 +223,11 @@ class MinesweeperAI():
         This function may use the knowledge in self.mines, self.safes
         and self.moves_made, but should not modify any of those values.
         """
-        raise NotImplementedError
+        move_set = self.safes.difference(self.moves_made)
+        if move_set:
+            return random.choice(tuple(move_set))
+        else:
+            return None
 
     def make_random_move(self):
         """
@@ -220,4 +236,18 @@ class MinesweeperAI():
             1) have not already been chosen, and
             2) are not known to be mines
         """
-        raise NotImplementedError
+        for i in range(self.height):
+            for j in range(self.width):
+                return (i,j)
+        # Random for sake of running the function, finish correct implementation
+
+"""
+Traceback (most recent call last):
+  File "T:\minesweeper\runner.py", line 220, in <module>
+    ai.add_knowledge(move, nearby)
+  File "T:\minesweeper\minesweeper.py", line 206, in add_knowledge
+    check_knowledge()
+  File "T:\minesweeper\minesweeper.py", line 200, in check_knowledge
+    for safe in sentence.known_safes():
+RuntimeError: Set changed size during iteration
+"""
