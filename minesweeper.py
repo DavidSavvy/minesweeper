@@ -193,27 +193,45 @@ class MinesweeperAI():
             5) add any new sentences to the AI's knowledge base
                if they can be inferred from existing knowledge
         """
+        print("stop")
+        
         def check_knowledge():
             for sentence in self.knowledge:
                 for mine in sentence.known_mines():
-                    self.mark_mine(mine)
+                    if mine not in self.mines:
+                        self.mark_mine(mine)
                 for safe in sentence.known_safes():
-                    self.mark_safe(safe)
+                    if safe not in self.safes:
+                        self.mark_safe(safe)
+        
         
         self.moves_made.add(cell)
         self.mark_safe(cell)
-        self.knowledge.append(Sentence(cell, count))
+        new_cells = set()
+        for i in range(cell[0] - 1, cell[0] + 2):
+            for j in range(cell[1] - 1, cell[1] + 2):
+
+                # Ignore the cell itself
+                if (i, j) == cell:
+                    continue
+                
+                new_cells.add((i,j))
+        
+        self.knowledge.append(Sentence(new_cells, count))
         check_knowledge()
         
         for sentence_1 in self.knowledge:
+            print(sentence_1)
             for sentence_2 in self.knowledge:
-                if sentence_2.cells.issubset(sentence_1.cells):
+                print(sentence_2)
+                if sentence_2.cells.issubset(sentence_1.cells) and len(sentence_2.cells) != 0:
+                    print("layer 3")
                     combined_set = set()
                     combined_set = sentence_2.cells.difference(sentence_1.cells)
                     self.knowledge.append(Sentence(combined_set, sentence_1.count-sentence_2.count))
-        check_knowledge()
+        #check_knowledge()
         # Must make a sentence based on the neighboring cells and their count, not the current cell???
-
+        print("success")
     def make_safe_move(self):
         """
         Returns a safe cell to choose on the Minesweeper board.
@@ -238,7 +256,8 @@ class MinesweeperAI():
         """
         for i in range(self.height):
             for j in range(self.width):
-                return (i,j)
+                if (i,j) not in self.moves_made and (i,j) not in self.mines:
+                    return (i,j)
         # Random for sake of running the function, finish correct implementation
 
 """
