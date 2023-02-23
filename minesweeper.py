@@ -197,12 +197,14 @@ class MinesweeperAI():
         
         def check_knowledge():
             for sentence in self.knowledge:
-                for mine in sentence.known_mines():
-                    if mine not in self.mines:
-                        self.mark_mine(mine)
-                for safe in sentence.known_safes():
-                    if safe not in self.safes:
-                        self.mark_safe(safe)
+                if sentence.known_mines():
+                    for mine in sentence.known_mines().copy():
+                        if mine not in self.mines:
+                            self.mark_mine(mine)
+                if sentence.known_safes():
+                    for safe in sentence.known_safes().copy():
+                        if safe not in self.safes:
+                            self.mark_safe(safe)
         
         
         self.moves_made.add(cell)
@@ -214,22 +216,23 @@ class MinesweeperAI():
                 # Ignore the cell itself
                 if (i, j) == cell:
                     continue
-                
-                new_cells.add((i,j))
+                if 0 <= i < self.height and 0 <= j < self.width:
+                    new_cells.add((i,j))
         
-        self.knowledge.append(Sentence(new_cells, count))
-        check_knowledge()
+        if len(new_cells) != 0:
+            self.knowledge.append(Sentence(new_cells, count))
         
-        for sentence_1 in self.knowledge:
-            print(sentence_1)
+        
+        for sentence_1 in self.knowledge:   
             for sentence_2 in self.knowledge:
-                print(sentence_2)
                 if sentence_2.cells.issubset(sentence_1.cells) and len(sentence_2.cells) != 0:
-                    print("layer 3")
+
                     combined_set = set()
-                    combined_set = sentence_2.cells.difference(sentence_1.cells)
+                    combined_set = sentence_1.cells.difference(sentence_2.cells)
+                    print(combined_set)
+                    # inf loop
                     self.knowledge.append(Sentence(combined_set, sentence_1.count-sentence_2.count))
-        #check_knowledge()
+        check_knowledge()
         # Must make a sentence based on the neighboring cells and their count, not the current cell???
         print("success")
     def make_safe_move(self):
@@ -243,6 +246,7 @@ class MinesweeperAI():
         """
         move_set = self.safes.difference(self.moves_made)
         if move_set:
+            print(random.choice(tuple(move_set)))
             return random.choice(tuple(move_set))
         else:
             return None
@@ -257,6 +261,7 @@ class MinesweeperAI():
         for i in range(self.height):
             for j in range(self.width):
                 if (i,j) not in self.moves_made and (i,j) not in self.mines:
+                    print("random",(i,j))
                     return (i,j)
         # Random for sake of running the function, finish correct implementation
 
