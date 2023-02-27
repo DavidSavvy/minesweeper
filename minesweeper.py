@@ -2,6 +2,7 @@ import itertools
 import random
 from tabnanny import check
 from unittest.mock import sentinel
+from copy import deepcopy
 
 
 class Minesweeper():
@@ -196,6 +197,7 @@ class MinesweeperAI():
         print("stop")
         
         def check_knowledge():
+            print("check knowledge")
             for sentence in self.knowledge:
                 if sentence.known_mines():
                     for mine in sentence.known_mines().copy():
@@ -222,15 +224,19 @@ class MinesweeperAI():
         if len(new_cells) != 0:
             self.knowledge.append(Sentence(new_cells, count))
         
-        
-        for sentence_1 in self.knowledge:   
-            for sentence_2 in self.knowledge:
-                if sentence_2.cells.issubset(sentence_1.cells) and len(sentence_2.cells) != 0:
+        print(len(self.knowledge))
+        print(self.knowledge)
+        for sentence_1 in deepcopy(self.knowledge):   
+            for sentence_2 in deepcopy(self.knowledge):
+                if sentence_2.cells.issubset(sentence_1.cells) and len(sentence_2.cells) != 0 and sentence_1 != sentence_2:
 
                     combined_set = set()
                     combined_set = sentence_1.cells.difference(sentence_2.cells)
-                    print(combined_set)
-                    # inf loop
+                    print("start of for")
+                    print(sentence_1)
+                    print(sentence_2)
+                    print(sentence_1.cells.difference(sentence_2.cells))
+                    # still inf loop, gets stuck on one sentence pair for some reason
                     self.knowledge.append(Sentence(combined_set, sentence_1.count-sentence_2.count))
         check_knowledge()
         # Must make a sentence based on the neighboring cells and their count, not the current cell???
