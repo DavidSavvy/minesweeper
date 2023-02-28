@@ -194,20 +194,25 @@ class MinesweeperAI():
             5) add any new sentences to the AI's knowledge base
                if they can be inferred from existing knowledge
         """
-        print("stop")
-        
+        """
+        MINES ARE NOT BEING MARKED ALMOST EVER, CHECK LOOPS, FUNDAMENTAL ISSUE WITH MARKING OF SENTENCES BASED OFF OF SAFE POINT
+        """
+        #print("stop")
+        #print(len(self.mines))
         def check_knowledge():
-            print("check knowledge")
+            #print("check knowledge")
             for sentence in self.knowledge:
                 if sentence.known_mines():
                     for mine in sentence.known_mines().copy():
+                        
+                        print("mine",mine)
                         if mine not in self.mines:
                             self.mark_mine(mine)
                 if sentence.known_safes():
                     for safe in sentence.known_safes().copy():
+                        #print("safe loop")
                         if safe not in self.safes:
                             self.mark_safe(safe)
-        
         
         self.moves_made.add(cell)
         self.mark_safe(cell)
@@ -224,23 +229,27 @@ class MinesweeperAI():
         if len(new_cells) != 0:
             self.knowledge.append(Sentence(new_cells, count))
         
-        print(len(self.knowledge))
-        print(self.knowledge)
+        check_knowledge()
+        #print(len(self.knowledge))
+        #print(self.knowledge)
         for sentence_1 in deepcopy(self.knowledge):   
             for sentence_2 in deepcopy(self.knowledge):
                 if sentence_2.cells.issubset(sentence_1.cells) and len(sentence_2.cells) != 0 and sentence_1 != sentence_2:
 
                     combined_set = set()
                     combined_set = sentence_1.cells.difference(sentence_2.cells)
-                    print("start of for")
-                    print(sentence_1)
-                    print(sentence_2)
-                    print(sentence_1.cells.difference(sentence_2.cells))
+                    #print("start of for")
+                    #print(sentence_1)
+                    #print(sentence_2)
+                    #print(sentence_1.cells.difference(sentence_2.cells))
                     # still inf loop, gets stuck on one sentence pair for some reason
-                    self.knowledge.append(Sentence(combined_set, sentence_1.count-sentence_2.count))
+                    new_sentence = Sentence(combined_set, sentence_1.count-sentence_2.count)
+                    if new_sentence not in self.knowledge:
+                        self.knowledge.append(Sentence(combined_set, sentence_1.count-sentence_2.count))
         check_knowledge()
         # Must make a sentence based on the neighboring cells and their count, not the current cell???
-        print("success")
+        #print("success")
+        print(self.mines)
     def make_safe_move(self):
         """
         Returns a safe cell to choose on the Minesweeper board.
