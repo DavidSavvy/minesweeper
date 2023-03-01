@@ -137,6 +137,7 @@ class Sentence():
         a cell is known to be safe.
         """
         if cell in self.cells:
+            print("cell safe")
             self.cells.remove(cell)
 
 
@@ -195,27 +196,28 @@ class MinesweeperAI():
                if they can be inferred from existing knowledge
         """
         """
-        MINES ARE NOT BEING MARKED ALMOST EVER, CHECK LOOPS, FUNDAMENTAL ISSUE WITH MARKING OF SENTENCES BASED OFF OF SAFE POINT
+        Still poorly marking mines. Lots to remember on Monday. Check mark_safe/mark_mine in both the sentence object and main class.
         """
         #print("stop")
         #print(len(self.mines))
         def check_knowledge():
             #print("check knowledge")
             for sentence in self.knowledge:
-                if sentence.known_mines():
-                    for mine in sentence.known_mines().copy():
-                        
-                        print("mine",mine)
-                        if mine not in self.mines:
-                            self.mark_mine(mine)
                 if sentence.known_safes():
                     for safe in sentence.known_safes().copy():
                         #print("safe loop")
                         if safe not in self.safes:
                             self.mark_safe(safe)
+                if sentence.known_mines():
+                    for mine in sentence.known_mines().copy():      
+                        print("mine",mine)
+                        if mine not in self.mines:
+                            self.mark_mine(mine)
+                
         
         self.moves_made.add(cell)
         self.mark_safe(cell)
+        #self.knowledge.append(Sentence(cell, count))
         new_cells = set()
         for i in range(cell[0] - 1, cell[0] + 2):
             for j in range(cell[1] - 1, cell[1] + 2):
