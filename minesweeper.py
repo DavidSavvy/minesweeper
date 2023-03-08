@@ -111,6 +111,8 @@ class Sentence():
         if self.count == 0:
             return set()
         elif len(self.cells) == self.count:
+            print("mine cells")
+            print(self.cells)
             return self.cells
 
     def known_safes(self):
@@ -128,7 +130,12 @@ class Sentence():
         a cell is known to be a mine.
         """
         if cell in self.cells:
+            print("cell mine")
+            print("-------")
+            print(self.cells)
             self.cells.remove(cell)
+            print(self.cells)
+            print("-------")
             self.count -= 1
 
     def mark_safe(self, cell):
@@ -137,8 +144,12 @@ class Sentence():
         a cell is known to be safe.
         """
         if cell in self.cells:
-            print("cell safe")
+            #print("cell safe")
+            #print("-------")
+            #print(self.cells)
             self.cells.remove(cell)
+            #print(self.cells)
+            #print("-------")
 
 
 class MinesweeperAI():
@@ -177,8 +188,11 @@ class MinesweeperAI():
         to mark that cell as safe as well.
         """
         self.safes.add(cell)
+        print(cell)
         for sentence in self.knowledge:
+            #print(sentence)
             sentence.mark_safe(cell)
+            #print(sentence)
 
     def add_knowledge(self, cell, count):
         """
@@ -196,21 +210,24 @@ class MinesweeperAI():
                if they can be inferred from existing knowledge
         """
         """
-        Still poorly marking mines. Lots to remember on Monday. Check mark_safe/mark_mine in both the sentence object and main class.
+        Can't recognize safe spots very well, doesn't properly remove from sets.
         """
         #print("stop")
         #print(len(self.mines))
         def check_knowledge():
-            #print("check knowledge")
+            print("check knowledge")
             for sentence in self.knowledge:
                 if sentence.known_safes():
                     for safe in sentence.known_safes().copy():
+                        #print(safe)
                         #print("safe loop")
                         if safe not in self.safes:
+                            print(sentence)
                             self.mark_safe(safe)
+                            print(sentence)
                 if sentence.known_mines():
                     for mine in sentence.known_mines().copy():      
-                        print("mine",mine)
+                        #print("mine",mine)
                         if mine not in self.mines:
                             self.mark_mine(mine)
                 
