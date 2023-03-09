@@ -111,8 +111,6 @@ class Sentence():
         if self.count == 0:
             return set()
         elif len(self.cells) == self.count:
-            print("mine cells")
-            print(self.cells)
             return self.cells
 
     def known_safes(self):
@@ -130,12 +128,9 @@ class Sentence():
         a cell is known to be a mine.
         """
         if cell in self.cells:
-            print("cell mine")
-            print("-------")
-            print(self.cells)
+            
             self.cells.remove(cell)
-            print(self.cells)
-            print("-------")
+            
             self.count -= 1
 
     def mark_safe(self, cell):
@@ -144,12 +139,9 @@ class Sentence():
         a cell is known to be safe.
         """
         if cell in self.cells:
-            #print("cell safe")
-            #print("-------")
-            #print(self.cells)
+            
             self.cells.remove(cell)
-            #print(self.cells)
-            #print("-------")
+            
 
 
 class MinesweeperAI():
@@ -188,11 +180,11 @@ class MinesweeperAI():
         to mark that cell as safe as well.
         """
         self.safes.add(cell)
-        print(cell)
+        
         for sentence in self.knowledge:
-            #print(sentence)
+            
             sentence.mark_safe(cell)
-            #print(sentence)
+            
 
     def add_knowledge(self, cell, count):
         """
@@ -212,29 +204,30 @@ class MinesweeperAI():
         """
         Can't recognize safe spots very well, doesn't properly remove from sets.
         """
-        #print("stop")
-        #print(len(self.mines))
+        
         def check_knowledge():
-            print("check knowledge")
+            
             for sentence in self.knowledge:
+                for cell in sentence.cells.copy():
+                    if cell in self.safes:
+                        self.mark_safe(cell)
                 if sentence.known_safes():
                     for safe in sentence.known_safes().copy():
-                        #print(safe)
-                        #print("safe loop")
+                        
                         if safe not in self.safes:
-                            print(sentence)
+                            
                             self.mark_safe(safe)
-                            print(sentence)
+                            
                 if sentence.known_mines():
                     for mine in sentence.known_mines().copy():      
-                        #print("mine",mine)
+                        
                         if mine not in self.mines:
                             self.mark_mine(mine)
                 
         
         self.moves_made.add(cell)
         self.mark_safe(cell)
-        #self.knowledge.append(Sentence(cell, count))
+
         new_cells = set()
         for i in range(cell[0] - 1, cell[0] + 2):
             for j in range(cell[1] - 1, cell[1] + 2):
@@ -249,26 +242,21 @@ class MinesweeperAI():
             self.knowledge.append(Sentence(new_cells, count))
         
         check_knowledge()
-        #print(len(self.knowledge))
-        #print(self.knowledge)
-        for sentence_1 in deepcopy(self.knowledge):   
-            for sentence_2 in deepcopy(self.knowledge):
+        for sentence_1 in self.knowledge.copy():   
+            for sentence_2 in self.knowledge.copy():
                 if sentence_2.cells.issubset(sentence_1.cells) and len(sentence_2.cells) != 0 and sentence_1 != sentence_2:
 
                     combined_set = set()
                     combined_set = sentence_1.cells.difference(sentence_2.cells)
-                    #print("start of for")
-                    #print(sentence_1)
-                    #print(sentence_2)
-                    #print(sentence_1.cells.difference(sentence_2.cells))
-                    # still inf loop, gets stuck on one sentence pair for some reason
+                    
+                    
                     new_sentence = Sentence(combined_set, sentence_1.count-sentence_2.count)
                     if new_sentence not in self.knowledge:
                         self.knowledge.append(Sentence(combined_set, sentence_1.count-sentence_2.count))
         check_knowledge()
-        # Must make a sentence based on the neighboring cells and their count, not the current cell???
-        #print("success")
-        print(self.mines)
+        #print("safes:", self.safes)
+        #print("mines:", self.mines)
+        #print("knowledge:", [sentence.__str__() for sentence in self.knowledge])
     def make_safe_move(self):
         """
         Returns a safe cell to choose on the Minesweeper board.
@@ -280,7 +268,7 @@ class MinesweeperAI():
         """
         move_set = self.safes.difference(self.moves_made)
         if move_set:
-            print(random.choice(tuple(move_set)))
+            #print(random.choice(tuple(move_set)))
             return random.choice(tuple(move_set))
         else:
             return None
@@ -295,7 +283,7 @@ class MinesweeperAI():
         for i in range(self.height):
             for j in range(self.width):
                 if (i,j) not in self.moves_made and (i,j) not in self.mines:
-                    print("random",(i,j))
+                    #print("random",(i,j))
                     return (i,j)
         # Random for sake of running the function, finish correct implementation
 
