@@ -127,10 +127,8 @@ class Sentence():
         Updates internal knowledge representation given the fact that
         a cell is known to be a mine.
         """
-        if cell in self.cells:
-            
-            self.cells.remove(cell)
-            
+        if cell in self.cells:       
+            self.cells.remove(cell)  
             self.count -= 1
 
     def mark_safe(self, cell):
@@ -138,8 +136,7 @@ class Sentence():
         Updates internal knowledge representation given the fact that
         a cell is known to be safe.
         """
-        if cell in self.cells:
-            
+        if cell in self.cells:    
             self.cells.remove(cell)
             
 
@@ -179,10 +176,8 @@ class MinesweeperAI():
         Marks a cell as safe, and updates all knowledge
         to mark that cell as safe as well.
         """
-        self.safes.add(cell)
-        
-        for sentence in self.knowledge:
-            
+        self.safes.add(cell)       
+        for sentence in self.knowledge: 
             sentence.mark_safe(cell)
             
 
@@ -201,62 +196,59 @@ class MinesweeperAI():
             5) add any new sentences to the AI's knowledge base
                if they can be inferred from existing knowledge
         """
-        """
-        Can't recognize safe spots very well, doesn't properly remove from sets.
-        """
         
+        # Iterates through all sentences and checks for any newfound safes/mines
         def check_knowledge():
-            
             for sentence in self.knowledge:
+                # Runs mark_safe on all previously known safes
                 for cell in sentence.cells.copy():
                     if cell in self.safes:
                         self.mark_safe(cell)
-                if sentence.known_safes():
-                    for safe in sentence.known_safes().copy():
-                        
-                        if safe not in self.safes:
-                            
-                            self.mark_safe(safe)
-                            
-                if sentence.known_mines():
-                    for mine in sentence.known_mines().copy():      
-                        
-                        if mine not in self.mines:
-                            self.mark_mine(mine)
                 
+                # Runs mark_safe on any newfound safes 
+                if sentence.known_safes():
+                    for safe in sentence.known_safes().copy():                       
+                        if safe not in self.safes:                           
+                            self.mark_safe(safe)
+                
+                # Runs mark_mine on any newfound mines
+                if sentence.known_mines():
+                    for mine in sentence.known_mines().copy():                             
+                        if mine not in self.mines:
+                            self.mark_mine(mine)   
         
         self.moves_made.add(cell)
         self.mark_safe(cell)
-
+        
+        # Finds all surrounding cells around the current move
         new_cells = set()
         for i in range(cell[0] - 1, cell[0] + 2):
             for j in range(cell[1] - 1, cell[1] + 2):
-
                 # Ignore the cell itself
                 if (i, j) == cell:
                     continue
                 if 0 <= i < self.height and 0 <= j < self.width:
                     new_cells.add((i,j))
         
+        # Adds sentence involving the new cells 
         if len(new_cells) != 0:
             self.knowledge.append(Sentence(new_cells, count))
         
+        # Runs through any new finds after the new data added
         check_knowledge()
+        # Checks if a sentence is a subset of another and makes a new sentence accordingly; inferred sentences
         for sentence_1 in self.knowledge.copy():   
             for sentence_2 in self.knowledge.copy():
                 if sentence_2.cells.issubset(sentence_1.cells) and len(sentence_2.cells) != 0 and sentence_1 != sentence_2:
-
                     combined_set = set()
-                    combined_set = sentence_1.cells.difference(sentence_2.cells)
-                    
-                    
+                    combined_set = sentence_1.cells.difference(sentence_2.cells)                 
                     new_sentence = Sentence(combined_set, sentence_1.count-sentence_2.count)
                     if new_sentence not in self.knowledge:
                         self.knowledge.append(Sentence(combined_set, sentence_1.count-sentence_2.count))
+        
+        # Runs through any new finds after the new data added
         check_knowledge()
-        #print("safes:", self.safes)
-        #print("mines:", self.mines)
-        #print("knowledge:", [sentence.__str__() for sentence in self.knowledge])
+
     def make_safe_move(self):
         """
         Returns a safe cell to choose on the Minesweeper board.
@@ -268,7 +260,6 @@ class MinesweeperAI():
         """
         move_set = self.safes.difference(self.moves_made)
         if move_set:
-            #print(random.choice(tuple(move_set)))
             return random.choice(tuple(move_set))
         else:
             return None
@@ -280,20 +271,8 @@ class MinesweeperAI():
             1) have not already been chosen, and
             2) are not known to be mines
         """
+        # Picks first cell that is available and not a mine, not really random
         for i in range(self.height):
             for j in range(self.width):
                 if (i,j) not in self.moves_made and (i,j) not in self.mines:
-                    #print("random",(i,j))
                     return (i,j)
-        # Random for sake of running the function, finish correct implementation
-
-"""
-Traceback (most recent call last):
-  File "T:\minesweeper\runner.py", line 220, in <module>
-    ai.add_knowledge(move, nearby)
-  File "T:\minesweeper\minesweeper.py", line 206, in add_knowledge
-    check_knowledge()
-  File "T:\minesweeper\minesweeper.py", line 200, in check_knowledge
-    for safe in sentence.known_safes():
-RuntimeError: Set changed size during iteration
-"""
